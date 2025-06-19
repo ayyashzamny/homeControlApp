@@ -3,8 +3,6 @@
 
 <head>
     <title>Smart Switch Control</title>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js"></script>
     <style>
         body {
             font-family: sans-serif;
@@ -34,42 +32,47 @@
 </head>
 
 <body>
-
     <h1>Smart Home Control</h1>
     <button id="fanBtn" class="off">Fan: OFF</button>
     <button id="lightBtn" class="off">Light: OFF</button>
 
-    <script>
+    <script type="module">
+        // Firebase Modular Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
         const firebaseConfig = {
             apiKey: "AIzaSyDrG5jZThIavEK7Yt3kbay9gg2kiAUPNlg",
             authDomain: "homecontrolapp-ays.firebaseapp.com",
             databaseURL: "https://homecontrolapp-ays-default-rtdb.firebaseio.com",
             projectId: "homecontrolapp-ays",
-            storageBucket: "homecontrolapp-ays.firebasestorage.app",
+            storageBucket: "homecontrolapp-ays.appspot.com", <!-- fixed typo -->
             messagingSenderId: "33648433237",
             appId: "1:33648433237:web:ce64c982cb469264961cdc",
             measurementId: "G-QCJ7X9PBWX"
         };
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
         const fanBtn = document.getElementById("fanBtn");
         const lightBtn = document.getElementById("lightBtn");
 
         fanBtn.addEventListener("click", () => {
             const isOn = fanBtn.classList.contains("on");
-            db.ref("devices/fan").set(!isOn);
+            set(ref(db, "devices/fan"), !isOn);
         });
 
         lightBtn.addEventListener("click", () => {
             const isOn = lightBtn.classList.contains("on");
-            db.ref("devices/light").set(!isOn);
+            set(ref(db, "devices/light"), !isOn);
         });
 
-        // Update UI from database
-        db.ref("devices").on("value", (snap) => {
-            const data = snap.val();
+        // Real-time listener
+        onValue(ref(db, "devices"), (snapshot) => {
+            const data = snapshot.val();
+            if (!data) return;
+
             if (data.fan) {
                 fanBtn.classList.add("on");
                 fanBtn.classList.remove("off");
