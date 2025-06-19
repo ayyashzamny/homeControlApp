@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Smart Switch Control</title>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #121212;
+            color: white;
+            text-align: center;
+            padding: 40px;
+        }
+
+        button {
+            padding: 10px 30px;
+            margin: 20px;
+            font-size: 20px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .on {
+            background-color: #4caf50;
+        }
+
+        .off {
+            background-color: #f44336;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Smart Home Control</h1>
+    <button id="fanBtn" class="off">Fan: OFF</button>
+    <button id="lightBtn" class="off">Light: OFF</button>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "your-project-id.firebaseapp.com",
+            databaseURL: "https://your-project-id.firebaseio.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project-id.appspot.com",
+            messagingSenderId: "1234567890",
+            appId: "YOUR_APP_ID"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        const fanBtn = document.getElementById("fanBtn");
+        const lightBtn = document.getElementById("lightBtn");
+
+        fanBtn.addEventListener("click", () => {
+            const isOn = fanBtn.classList.contains("on");
+            db.ref("devices/fan").set(!isOn);
+        });
+
+        lightBtn.addEventListener("click", () => {
+            const isOn = lightBtn.classList.contains("on");
+            db.ref("devices/light").set(!isOn);
+        });
+
+        // Update UI from database
+        db.ref("devices").on("value", (snap) => {
+            const data = snap.val();
+            if (data.fan) {
+                fanBtn.classList.add("on");
+                fanBtn.classList.remove("off");
+                fanBtn.innerText = "Fan: ON";
+            } else {
+                fanBtn.classList.remove("on");
+                fanBtn.classList.add("off");
+                fanBtn.innerText = "Fan: OFF";
+            }
+
+            if (data.light) {
+                lightBtn.classList.add("on");
+                lightBtn.classList.remove("off");
+                lightBtn.innerText = "Light: ON";
+            } else {
+                lightBtn.classList.remove("on");
+                lightBtn.classList.add("off");
+                lightBtn.innerText = "Light: OFF";
+            }
+        });
+    </script>
+</body>
+
+</html>

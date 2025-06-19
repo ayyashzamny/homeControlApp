@@ -1,0 +1,6 @@
+{
+    "devices": {
+        "fan": false,
+        "light": false
+    }
+}
